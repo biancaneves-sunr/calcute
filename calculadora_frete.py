@@ -17,7 +17,7 @@ import re
 from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Configurações
 ARQUIVO_EXCEL = 'https://raw.githubusercontent.com/biancaneves-sunr/calcute/0026cd7d0bf1ae3cf6a5be69516155e39b0f0e3d/Banco%20de%20Dados%20-%20Logistica.xlsx'
@@ -132,7 +132,7 @@ class CalculadoraFrete:
                 'Distancia Valinhos (km)': [distancia if distancia else 7],
                 'Núm. Módulos': [num_modulos if num_modulos else 200],
                 'Peso real (kg)': [peso_kg if peso_kg else 6000],
-                'Data Envio Proposta': [datetime.now() - datetime.timedelta(days=30)]
+                'Data Envio Proposta': [datetime.now() - timedelta(days=30)]
             })
         
         # Para fretes normais (não curtos), usar a lógica padrão com filtros mais rigorosos
@@ -256,7 +256,7 @@ class CalculadoraFrete:
                     'Distancia Valinhos (km)': [distancia if distancia else 7],
                     'Núm. Módulos': [num_modulos if num_modulos else 200],
                     'Peso real (kg)': [peso_kg if peso_kg else 6000],
-                    'Data Envio Proposta': [datetime.now() - datetime.timedelta(days=30)]
+                    'Data Envio Proposta': [datetime.now() - timedelta(days=30)]
                 })
             elif distancia < 100:  # Fretes médios
                 return pd.DataFrame({
@@ -264,7 +264,7 @@ class CalculadoraFrete:
                     'Distancia Valinhos (km)': [distancia],
                     'Núm. Módulos': [num_modulos if num_modulos else 200],
                     'Peso real (kg)': [peso_kg if peso_kg else 6000],
-                    'Data Envio Proposta': [datetime.now() - datetime.timedelta(days=30)]
+                    'Data Envio Proposta': [datetime.now() - timedelta(days=30)]
                 })
             else:  # Fretes longos
                 return pd.DataFrame({
@@ -272,7 +272,7 @@ class CalculadoraFrete:
                     'Distancia Valinhos (km)': [distancia],
                     'Núm. Módulos': [num_modulos if num_modulos else 200],
                     'Peso real (kg)': [peso_kg if peso_kg else 6000],
-                    'Data Envio Proposta': [datetime.now() - datetime.timedelta(days=30)]
+                    'Data Envio Proposta': [datetime.now() - timedelta(days=30)]
                 })
         
         # Retorna dados vazios se não encontrar nada
@@ -316,7 +316,6 @@ class CalculadoraFrete:
         fator = (peso_alvo / peso_base) ** (-0.05)  # Expoente menos agressivo
         return valor_base * (peso_alvo / peso_base) * fator
     
-    
     def _calcular_valor_por_km(self, fretes_similares, distancia):
         """Calcula o valor médio por km com base nos fretes similares."""
         if distancia is None or distancia == 0:
@@ -324,12 +323,16 @@ class CalculadoraFrete:
             distancia_valinhos = fretes_similares['Distancia Valinhos (km)'].mean()
             distancia_mc = fretes_similares['Distancia-MC (km)'].mean()
             
-            if not pd.isna(distancia_valinhos):
+            if not pd.isna(distancia_valinhos) and distancia_valinhos > 0:
                 distancia = distancia_valinhos
-            elif not pd.isna(distancia_mc):
+            elif not pd.isna(distancia_mc) and distancia_mc > 0:
                 distancia = distancia_mc
             else:
-                return 0
+                return VALOR_POR_KM_PADRAO  # Valor padrão por km
+        
+        # Para fretes curtos, usar um valor por km mais alto
+        if distancia < 10:
+            return VALOR_POR_KM_PADRAO
         
         # Calcular valor por km para cada frete similar
         valores_por_km = []
@@ -337,9 +340,9 @@ class CalculadoraFrete:
             frete = row['(R$) Frete']
             
             # Verificar qual coluna de distância usar
-            if not pd.isna(row.get('Distancia Valinhos (km)', np.nan)):
+            if not pd.isna(row.get('Distancia Valinhos (km)', np.nan)) and row['Distancia Valinhos (km)'] > 0:
                 dist = row['Distancia Valinhos (km)']
-            elif not pd.isna(row.get('Distancia-MC (km)', np.nan)):
+            elif not pd.isna(row.get('Distancia-MC (km)', np.nan)) and row['Distancia-MC (km)'] > 0:
                 dist = row['Distancia-MC (km)']
             else:
                 continue
@@ -349,15 +352,21 @@ class CalculadoraFrete:
         
         # Calcular média dos valores por km
         if valores_por_km:
+            # Remover outliers (valores acima do percentil 90)
+            if len(valores_por_km) > 5:
+                valores_por_km.sort()
+                valores_por_km = valores_por_km[:int(len(valores_por_km) * 0.9)]
+            
             valor_medio_por_km = np.mean(valores_por_km)
             return valor_medio_por_km
         
-        # Se não conseguir calcular, estimar com base no valor médio e distância
-        valor_medio = fretes_similares['(R$) Frete'].mean()
-        if distancia > 0:
-            return valor_medio / distancia
-        
-        return 0
+        # Se não conseguir calcular, usar valor padrão baseado na distância
+        if distancia < 10:
+            return VALOR_POR_KM_PADRAO
+        elif distancia < 100:
+            return 120  # Valor médio por km para fretes médios
+        else:
+            return 100  # Valor médio por km para fretes longos
     
     def calcular_frete(self, origem, destino, num_modulos=None, peso_kg=None, data=None, modo_calculo="modulos"):
         """Calcula o valor estimado do frete."""
@@ -380,6 +389,9 @@ class CalculadoraFrete:
         # Calcular distância
         distancia = self._calcular_distancia(origem, destino)
         
+        # Verificar se é um frete curto (menos de 10km)
+        is_frete_curto = distancia is not None and distancia < 10
+        
         # Buscar fretes similares
         fretes_similares = self._buscar_fretes_similares(
             origem, destino, num_modulos, peso_kg, distancia, modo_calculo
@@ -391,6 +403,52 @@ class CalculadoraFrete:
                 "mensagem": "Não foram encontrados fretes similares na base de dados."
             }
         
+        # Para fretes curtos, usar lógica simplificada
+        if is_frete_curto:
+            # Usar valor médio informado pelo usuário (R$ 800) como base
+            valor_base = VALOR_MEDIO_FRETE_CURTO
+            
+            # Ajustar por distância
+            if distancia:
+                valor_por_km = VALOR_POR_KM_PADRAO
+                valor_base = max(valor_base, distancia * valor_por_km)
+            
+            # Ajustar por quantidade
+            if modo_calculo == "modulos" and num_modulos:
+                # Ajuste simples: 10% a mais ou a menos para cada 50 módulos de diferença
+                modulos_padrao = 200
+                fator_ajuste = 1 + ((num_modulos - modulos_padrao) / modulos_padrao) * 0.1
+                valor_base *= max(0.5, min(fator_ajuste, 2.0))  # Limitar o ajuste
+            
+            # Aplicar margem adicional
+            valor_final = valor_base * (1 + MARGEM_ADICIONAL)
+            
+            # Preparar resultado
+            resultado = {
+                "status": "sucesso",
+                "valor_estimado": round(valor_final, 2),
+                "distancia_km": distancia,
+                "fretes_base": 1,
+                "valor_medio_original": round(valor_base, 2),
+                "valor_por_km": round(VALOR_POR_KM_PADRAO, 2),
+                "valor_total_por_km": round(distancia * VALOR_POR_KM_PADRAO if distancia else 0, 2),
+                "ajuste_quantidade": 0,
+                "ajuste_inflacao": 0,
+                "margem_aplicada": round(valor_base * MARGEM_ADICIONAL, 2),
+                "detalhes": {
+                    "origem": origem,
+                    "destino": destino,
+                    "modo_calculo": modo_calculo,
+                    "parametro_base": 200 if modo_calculo == "modulos" else 6000,
+                    "parametro_alvo": num_modulos if modo_calculo == "modulos" else peso_kg,
+                    "unidade": "módulos" if modo_calculo == "modulos" else "kg",
+                    "data_consulta": data.strftime("%Y-%m-%d")
+                }
+            }
+            
+            return resultado
+        
+        # Para fretes normais, usar lógica padrão com ajustes
         # Calcular valor base (média ponderada dos fretes similares)
         fretes_similares['Peso'] = 1.0  # Peso padrão
         
@@ -423,9 +481,9 @@ class CalculadoraFrete:
             distancia_valinhos = fretes_similares['Distancia Valinhos (km)'].mean()
             distancia_mc = fretes_similares['Distancia-MC (km)'].mean()
             
-            if not pd.isna(distancia_valinhos):
+            if not pd.isna(distancia_valinhos) and distancia_valinhos > 0:
                 distancia = distancia_valinhos
-            elif not pd.isna(distancia_mc):
+            elif not pd.isna(distancia_mc) and distancia_mc > 0:
                 distancia = distancia_mc
         
         # Calcular valor total por km
