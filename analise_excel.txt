@@ -1,0 +1,126 @@
+ANÁLISE DA ESTRUTURA DO EXCEL - BANCO DE DADOS LOGÍSTICA
+
+Planilhas encontradas: ['Sheet1']
+
+Planilha: Sheet1
+Dimensões: 634 linhas x 53 colunas
+Colunas:
+- Status
+- NF-Relatório Ambiental
+- Segmento do Cliente
+- Tipo de Serviço
+- Nome Contato
+- Origin do Lead
+- (R$) Relatório de Reciclagem 
+- Contrato/Coleta
+- Fat. Direto?
+- Recebimento
+- (R$) Serviços
+- Motivo do descarte
+- Logistica
+- Coord
+- Valor da Proposta
+- Data Recebimento das Informações
+- NF-Reciclagem
+- (R$) Vídeo Marketing
+- Destino
+- Data de contato realizado
+- Margem (A)
+- NF-Vídeo marketing
+- Termo Assinado?
+- Tarefas
+- (R$) GateFee
+- (R$) Frete
+- CEP origem
+- Formula Proposta
+- Added
+- Phone
+- Empresa
+- Distancia Valinhos (km)
+- Distancia-MC (km)
+- Próximo Contato
+- NF-Coleta
+- Emissão da NF
+- Peso real (kg)
+- Data de Orçamento
+- Status-Modulos
+- Formula Frete
+- Previsão para descarte
+- Núm. Módulos
+- Last edited time
+- (R$) Demais  Custos Logistico
+- Email
+- Transportadora
+- Data Envio Proposta
+- Prazo para Pag.
+- Coleta_ID
+- Prazo de Pagamento
+- Name
+- Cidade/Estado
+- Estado
+
+Contagem de valores não nulos por coluna:
+- Status: 632/634 (99.7%)
+- NF-Relatório Ambiental: 0/634 (0.0%)
+- Segmento do Cliente: 524/634 (82.6%)
+- Tipo de Serviço: 608/634 (95.9%)
+- Nome Contato: 574/634 (90.5%)
+- Origin do Lead: 514/634 (81.1%)
+- (R$) Relatório de Reciclagem : 72/634 (11.4%)
+- Contrato/Coleta: 581/634 (91.6%)
+- Fat. Direto?: 52/634 (8.2%)
+- Recebimento: 288/634 (45.4%)
+- (R$) Serviços: 0/634 (0.0%)
+- Motivo do descarte: 620/634 (97.8%)
+- Logistica: 467/634 (73.7%)
+- Coord: 420/634 (66.2%)
+- Valor da Proposta: 438/634 (69.1%)
+- Data Recebimento das Informações: 90/634 (14.2%)
+- NF-Reciclagem: 0/634 (0.0%)
+- (R$) Vídeo Marketing: 70/634 (11.0%)
+- Destino: 456/634 (71.9%)
+- Data de contato realizado: 359/634 (56.6%)
+- Margem (A): 0/634 (0.0%)
+- NF-Vídeo marketing: 0/634 (0.0%)
+- Termo Assinado?: 94/634 (14.8%)
+- Tarefas: 0/634 (0.0%)
+- (R$) GateFee: 39/634 (6.2%)
+- (R$) Frete: 382/634 (60.3%)
+- CEP origem: 402/634 (63.4%)
+- Formula Proposta: 0/634 (0.0%)
+- Added: 0/634 (0.0%)
+- Phone: 0/634 (0.0%)
+- Empresa: 586/634 (92.4%)
+- Distancia Valinhos (km): 403/634 (63.6%)
+- Distancia-MC (km): 400/634 (63.1%)
+- Próximo Contato: 139/634 (21.9%)
+- NF-Coleta: 0/634 (0.0%)
+- Emissão da NF: 15/634 (2.4%)
+- Peso real (kg): 464/634 (73.2%)
+- Data de Orçamento: 29/634 (4.6%)
+- Status-Modulos: 618/634 (97.5%)
+- Formula Frete: 0/634 (0.0%)
+- Previsão para descarte: 128/634 (20.2%)
+- Núm. Módulos: 532/634 (83.9%)
+- Last edited time: 0/634 (0.0%)
+- (R$) Demais  Custos Logistico: 101/634 (15.9%)
+- Email: 532/634 (83.9%)
+- Transportadora: 284/634 (44.8%)
+- Data Envio Proposta: 84/634 (13.2%)
+- Prazo para Pag.: 0/634 (0.0%)
+- Coleta_ID: 634/634 (100.0%)
+- Prazo de Pagamento: 61/634 (9.6%)
+- Name: 634/634 (100.0%)
+- Cidade/Estado: 634/634 (100.0%)
+- Estado: 634/634 (100.0%)
+
+Primeiras 5 linhas:
+                  Status  NF-Relatório Ambiental Segmento do Cliente        Tipo de Serviço     Nome Contato Origin do Lead  (R$) Relatório de Reciclagem  Contrato/Coleta     Fat. Direto? Recebimento  (R$) Serviços Motivo do descarte Logistica                                    Coord  Valor da Proposta Data Recebimento das Informações  NF-Reciclagem  (R$) Vídeo Marketing   Destino Data de contato realizado  Margem (A)  NF-Vídeo marketing Termo Assinado?  Tarefas  (R$) GateFee  (R$) Frete CEP origem  Formula Proposta  Added  Phone      Empresa  Distancia Valinhos (km)  Distancia-MC (km) Próximo Contato  NF-Coleta Emissão da NF  Peso real (kg) Data de Orçamento Status-Modulos  Formula Frete Previsão para descarte  Núm. Módulos  Last edited time  (R$) Demais  Custos Logistico                               Email   Transportadora Data Envio Proposta  Prazo para Pag.  Coleta_ID  Prazo de Pagamento                  Name    Cidade/Estado           Estado
+0              Orçamento                     NaN          Integrador  Reciclagem, Logística   Felipe Menezes           Site                            NaN          Coleta              Não         NaN            NaN    Modulo quebrado       CIF                                      NaN                NaN                       2025-05-19            NaN                   NaN       NaN                2025-05-19         NaN                 NaN             Não      NaN           NaN         NaN        NaN               NaN    NaN    NaN          NaN                      NaN                NaN             NaN        NaN           NaN          4500.0               NaN     Disponivel            NaN             2025-07-15         150.0               NaN                            NaN   felipe.menezes@sempresolar.com.br              NaN                 NaN              NaN       1373                 NaN          Sempre Solar  SEM COORDENADAS  SEM COORDENADAS
+1              Orçamento                     NaN               Usina  Reciclagem, Logística  Leandro Galvani       whatsapp                            NaN          Coleta              Não         NaN            NaN    Modulo quebrado       CIF                                      NaN                NaN                       2025-05-16            NaN                   NaN       NaN                2025-05-14         NaN                 NaN             Não      NaN        1680.0         NaN        NaN               NaN    NaN    NaN          NaN                      NaN                NaN      2025-05-22        NaN           NaN         10500.0               NaN     Disponivel            NaN             2025-07-09         350.0               NaN                            NaN  leandro.baffi@paratyenergia.com.br              NaN                 NaN              NaN       1372                 NaN        Paraty Energia  SEM COORDENADAS  SEM COORDENADAS
+2        Proposta Aceita                     NaN     Intermediadora              Reciclagem     Daiani Silva       whatsapp                            0.0          Coleta              Não         NaN            NaN    Modulo quebrado       FOB                                      NaN               0.00                       2025-05-15            NaN                   0.0  Valinhos                2025-05-08         NaN                 NaN             Não      NaN           0.0         0.0        NaN               NaN    NaN    NaN     Ecopower                      NaN                NaN             NaN        NaN           NaN          9000.0        2025-05-15     Disponivel            NaN             2025-05-23         300.0               NaN                            0.0        daiani.silva@ecopower.com.br              NaN          2025-05-16              NaN       1369                 NaN              Ecopower  SEM COORDENADAS  SEM COORDENADAS
+3              Orçamento                     NaN          Integrador             Reciclagem     Ingrid Voget         E-mail                            NaN          Coleta              NaN         NaN            NaN    Modulo quebrado       CIF                                      NaN                NaN                       2025-05-19            NaN                   NaN       NaN                2025-05-13         NaN                 NaN             NaN      NaN           NaN         NaN        NaN               NaN    NaN    NaN  Eco Energia                      NaN                NaN      2025-05-26        NaN           NaN             NaN               NaN            NaN            NaN                    NaN           NaN               NaN                            NaN      ingrid.voget@ecoenergia.eng.br              NaN                 NaN              NaN       1368                 NaN  Eco Energia - Ingrid  SEM COORDENADAS  SEM COORDENADAS
+4  Aguardando Ok para NF                     NaN              Outros             Reciclagem  Eduardo Podestá         E-mail                            0.0          Coleta  Sim Fat. Direto  2025-05-21            NaN    Modulo quebrado       CIF  -21.601652635997986, -49.54837541584473            8096.62                       2025-05-12            NaN                   0.0  Valinhos                2025-05-08         NaN                 NaN   Não se aplica      NaN        2174.0      4264.0  16419-899               NaN    NaN    NaN   PG Energia                    407.0             1001.0      2025-05-22        NaN           NaN         13590.0        2025-05-15     Disponivel            NaN             2025-05-20         453.0               NaN                         1200.0            eduardo@pgenergia.com.br  JHG Transportes          2025-05-15              NaN       1367                30.0            PG Energia          Lins/SP               SP
+
+--------------------------------------------------------------------------------
+

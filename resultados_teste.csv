@@ -1,0 +1,6 @@
+Descrição,Origem,Destino,Módulos,Valor Estimado,Distância (km),Fretes Base,Status
+Caso 1: Cidades grandes com muitos módulos,"São Paulo, SP","Rio de Janeiro, RJ",300,1952.09,,3,Sucesso
+Caso 2: Cidades médias com poucos módulos,"Campinas, SP","Valinhos, SP",50,1356.57,9.72,1,Sucesso
+Caso 3: Cidades distantes com módulos médios,"Porto Alegre, RS","Manaus, AM",150,8516.64,3117.21,5,Sucesso
+Caso 4: Usando CEPs,"04538-133, São Paulo, SP","22031-001, Rio de Janeiro, RJ",200,1355.24,,3,Sucesso
+Caso 5: Cidades sem histórico direto,"Chapecó, SC","Palmas, TO",100,7915.21,1926.45,1,Sucesso
