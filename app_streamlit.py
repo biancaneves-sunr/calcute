@@ -69,8 +69,7 @@ st.markdown("""
 def carregar_calculadora():
     """Carrega a calculadora de fretes (com cache para evitar recarregamento)."""
     try:
-        # Ajuste o caminho conforme necessário quando publicar
-        arquivo_excel = '/home/ubuntu/upload/Banco de Dados - Logistica.xlsx'
+        arquivo_excel ='https://github.com/biancaneves-sunr/calcute/blob/0026cd7d0bf1ae3cf6a5be69516155e39b0f0e3d/Banco%20de%20Dados%20-%20Logistica.xlsx'
         return CalculadoraFrete(arquivo_excel)
     except Exception as e:
         st.error(f"Erro ao carregar a calculadora: {e}")
