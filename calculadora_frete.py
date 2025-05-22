@@ -313,8 +313,9 @@ class CalculadoraFrete:
         
         # Fator de economia de escala: quanto maior o peso, menor o valor por kg
         # Ajustado para ser menos agressivo
-        fator = (peso_alvo / peso_base) ** (-0.05)  # Expoente menos agressivo
-        return valor_base * (peso_alvo / peso_base) * fator
+            # Simplificar o ajuste para ser proporcional e sempre positivo
+        fator = peso_alvo / peso_base
+        return valor_base * fator
     
     def _calcular_valor_por_km(self, fretes_similares, distancia):
         """Calcula o valor médio por km com base nos fretes similares."""
@@ -421,7 +422,8 @@ class CalculadoraFrete:
                 valor_base *= max(0.5, min(fator_ajuste, 2.0))  # Limitar o ajuste
             
             # Aplicar margem adicional
-            valor_final = valor_base * (1 + MARGEM_ADICIONAL)
+            margem = valor_ajustado_inflacao * MARGEM_ADICIONAL
+            valor_final = valor_ajustado_inflacao + margem
             
             # Preparar resultado
             resultado = {
@@ -525,7 +527,8 @@ class CalculadoraFrete:
         
         # Garantir que o valor final não seja menor que o valor por km
         if valor_por_km > 0:
-            valor_final = max(valor_final, valor_por_km * (1 + MARGEM_ADICIONAL))
+            valor_minimo = valor_por_km * (1 + MARGEM_ADICIONAL)
+            valor_final = max(valor_final, valor_minimo)
         
         # Preparar resultado
         resultado = {
@@ -538,7 +541,7 @@ class CalculadoraFrete:
             "valor_total_por_km": round(valor_por_km, 2),
             "ajuste_quantidade": round(valor_ajustado - valor_medio, 2),
             "ajuste_inflacao": round(valor_ajustado_inflacao - valor_ajustado, 2),
-            "margem_aplicada": round(valor_final - valor_ajustado_inflacao, 2),
+            "margem_aplicada": round(margem, 2),
             "detalhes": {
                 "origem": origem,
                 "destino": destino,
