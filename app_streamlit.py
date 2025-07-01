@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Interface Streamlit para Calculadora de Fretes - Versão 3.0
-----------------------------------------------------------
-Este script implementa uma interface Streamlit para a calculadora de fretes,
-com valores recalibrados e interface aprimorada conforme feedback do usuário.
+Calculadora de Fretes - Interface Streamlit (Versão 5.0)
+-------------------------------------------------------
+Interface web para a calculadora de fretes recalibrada.
 """
 
 import streamlit as st
@@ -15,239 +14,204 @@ import os
 import sys
 from calculadora_frete import CalculadoraFrete
 
-# Configurações da página
+# Configuração da página
 st.set_page_config(
-    page_title="Calculadora de Fretes",
+    page_title="Calculadora de Fretes v5.0",
     page_icon="🚚",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Estilo personalizado
+# CSS personalizado para melhorar a aparência
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.8rem;
-        color: #0d6efd;
-        text-align: center;
-        margin-bottom: 1rem;
+    .big-font {
+        font-size:30px !important;
+        font-weight: bold;
+        color: #1E88E5;
     }
-    .sub-header {
-        font-size: 1.8rem;
-        color: #6c757d;
-        margin-bottom: 2rem;
-        text-align: center;
+    .medium-font {
+        font-size:24px !important;
+        font-weight: bold;
+        color: #1E88E5;
     }
     .result-box {
-        background-color: #f8f9fa;
+        background-color: #f0f8ff;
         padding: 20px;
         border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-top: 2rem;
+        margin-bottom: 20px;
+        text-align: center;
     }
-    .big-number {
-        font-size: 3.5rem;
+    .result-value {
+        font-size: 36px !important;
         font-weight: bold;
-        color: #0d6efd;
-        text-align: center;
+        color: #1E88E5;
     }
-    .medium-number {
-        font-size: 2.2rem;
+    .result-label {
+        font-size: 16px;
+        color: #555;
+    }
+    .detail-box {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    .detail-value {
         font-weight: bold;
-        color: #198754;
-        text-align: center;
+        color: #333;
     }
-    .info-text {
-        color: #6c757d;
-        font-size: 1.1rem;
-        text-align: center;
-    }
-    .footer {
-        text-align: center;
-        margin-top: 3rem;
-        color: #6c757d;
-        font-size: 0.9rem;
+    .info-icon {
+        color: #1E88E5;
+        font-size: 18px;
     }
     .stButton>button {
-        font-size: 1.2rem;
+        width: 100%;
+        background-color: #1E88E5;
+        color: white;
         font-weight: bold;
-        height: 3rem;
+        padding: 10px 0;
+    }
+    .stButton>button:hover {
+        background-color: #1565C0;
+    }
+    .stNumberInput>div>div>input {
+        text-align: center;
+        font-size: 20px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-@st.cache_resource
-def carregar_calculadora():
-    """Carrega a calculadora de fretes (com cache para evitar recarregamento)."""
-    try:
-        # Ajuste o caminho conforme necessário quando publicar
-        arquivo_excel = 'https://raw.githubusercontent.com/biancaneves-sunr/calcute/0026cd7d0bf1ae3cf6a5be69516155e39b0f0e3d/Banco%20de%20Dados%20-%20Logistica.xlsx'
-        return CalculadoraFrete(arquivo_excel)
-    except Exception as e:
-        st.error(f"Erro ao carregar a calculadora: {e}")
-        return None
+# Título
+st.markdown('<p class="big-font">Calculadora de Fretes</p>', unsafe_allow_html=True)
 
-def main():
-    """Função principal da interface Streamlit."""
-    # Cabeçalho
-    st.markdown('<h1 class="main-header">Calculadora de Fretes</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="sub-header">Estimativa de fretes com base em dados históricos</p>', unsafe_allow_html=True)
+# Formulário de entrada
+with st.container():
+    col1, col2 = st.columns(2)
     
-    # Carregar calculadora
-    calculadora = carregar_calculadora()
+    with col1:
+        st.markdown("Origem")
+        origem = st.text_input("", value="", key="origem", help="Cidade/Estado ou endereço completo")
     
-    if calculadora is None:
-        st.error("Não foi possível inicializar a calculadora. Verifique o arquivo de dados.")
-        return
+    with col2:
+        st.markdown("Destino")
+        destino = st.text_input("", value="", key="destino", help="Cidade/Estado ou endereço completo")
+
+    # Modo de cálculo
+    st.markdown("Modo de cálculo")
+    modo_calculo = st.radio("", ["Por módulos", "Por peso (kg)"], horizontal=True, help="Escolha o modo de cálculo")
     
-    # Formulário de entrada
-    with st.form("formulario_frete"):
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            origem = st.text_input(
-                "Origem",
-                placeholder="Cidade/Estado ou endereço com CEP",
-                help="Ex: São Paulo, SP ou Rua Exemplo, 123 - São Paulo, SP, 01234-567"
-            )
-        
-        with col2:
-            destino = st.text_input(
-                "Destino",
-                placeholder="Cidade/Estado ou endereço com CEP",
-                help="Ex: Rio de Janeiro, RJ ou Av. Exemplo, 456 - Rio de Janeiro, RJ, 20000-000"
-            )
-        
-        # Seleção do modo de cálculo
-        modo_calculo = st.radio(
-            "Modo de cálculo",
-            options=["Por módulos", "Por peso (kg)"],
-            horizontal=True,
-            help="Escolha se o cálculo será baseado na quantidade de módulos ou no peso em kg"
-        )
-        
-        # Campos específicos conforme o modo de cálculo
-        if modo_calculo == "Por módulos":
-            num_modulos = st.number_input(
-                "Quantidade de Módulos",
-                min_value=1,
-                value=100,
-                step=10,
-                help="Número de módulos a serem transportados"
-            )
-            peso_kg = None
-        else:  # Por peso
-            peso_kg = st.number_input(
-                "Peso em kg",  # Corrigido conforme solicitado
-                min_value=1.0,
-                value=3000.0,
-                step=100.0,
-                format="%.1f",
-                help="Peso total em kg a ser transportado"
-            )
-            num_modulos = None
-        
-        # Data prevista
-        data = st.date_input(
-            "Data Prevista",
-            value=datetime.now(),
-            help="Data prevista para o frete"
-        )
-        
-        # Botão de envio
-        submitted = st.form_submit_button("Calcular Frete", use_container_width=True)
+    # Campo dinâmico baseado no modo de cálculo
+    if modo_calculo == "Por módulos":
+        st.markdown("Quantidade de Módulos")
+        quantidade = st.number_input("", min_value=1, value=200, step=1, key="modulos", help="Número de módulos")
+        num_modulos = quantidade
+        peso_kg = None
+    else:
+        st.markdown("Peso em kg")
+        quantidade = st.number_input("", min_value=1, value=6000, step=100, key="peso", help="Peso em kg")
+        peso_kg = quantidade
+        num_modulos = None
     
-    # Processamento do formulário
-    if submitted:
-        if not origem or not destino:
-            st.error("Origem e destino são campos obrigatórios.")
-            return
-        
-        with st.spinner("Calculando frete..."):
-            # Converter data para datetime
-            data_dt = datetime.combine(data, datetime.min.time())
+    # Data prevista
+    st.markdown("Data Prevista")
+    data_prevista = st.date_input("", value=datetime.now(), key="data", help="Data prevista para o frete")
+    
+    # Botão de cálculo
+    calcular = st.button("Calcular Frete")
+
+# Processamento e exibição do resultado
+if calcular:
+    # Verificar se os campos obrigatórios foram preenchidos
+    if not origem or not destino:
+        st.error("Por favor, preencha os campos de origem e destino.")
+    else:
+        # Inicializar a calculadora
+        try:
+            # Verificar se o arquivo Excel existe
+            arquivo_excel = "/home/ubuntu/upload/BancodeDados-Logistica.xlsx"
+            if not os.path.exists(arquivo_excel):
+                st.warning("Arquivo de dados não encontrado. Usando valores de referência.")
+                calculadora = CalculadoraFrete()
+            else:
+                calculadora = CalculadoraFrete(arquivo_excel)
             
-            # Definir modo de cálculo para a API
-            modo_api = "modulos" if modo_calculo == "Por módulos" else "peso"
+            # Converter modo de cálculo para o formato esperado pela calculadora
+            modo = "modulos" if modo_calculo == "Por módulos" else "peso"
             
             # Calcular frete
             resultado = calculadora.calcular_frete(
-                origem=origem,
-                destino=destino,
-                num_modulos=num_modulos,
-                peso_kg=peso_kg,
-                data=data_dt,
-                modo_calculo=modo_api
+                origem,
+                destino,
+                num_modulos,
+                peso_kg,
+                data_prevista,
+                modo
             )
             
-            # Exibir resultado
-            if resultado["status"] == "sucesso":
-                # Seção de resultado
-                st.markdown("## Resultado da Cotação")
+            if resultado['status'] == 'sucesso':
+                # Exibir resultado
+                st.markdown('<p class="medium-font">Resultado da Cotação</p>', unsafe_allow_html=True)
                 
-                # Valor estimado em destaque
-                st.markdown('<div class="result-box">', unsafe_allow_html=True)
-                st.markdown('<p class="big-number">R$ {:.2f}</p>'.format(resultado["valor_estimado"]), unsafe_allow_html=True)
-                st.markdown('<p class="info-text">Valor estimado do frete</p>', unsafe_allow_html=True)
+                # Valor estimado do frete
+                st.markdown(f"""
+                <div class="result-box">
+                    <div class="result-value">R$ {resultado['valor_estimado']:.2f}</div>
+                    <div class="result-label">Valor estimado do frete</div>
+                </div>
+                """, unsafe_allow_html=True)
                 
-                # Valor por km
-                if resultado["distancia_km"]:
-                    st.markdown('<p class="medium-number">R$ {:.2f}/km</p>'.format(resultado["valor_por_km"]), unsafe_allow_html=True)
-                    st.markdown('<p class="info-text">Valor por quilômetro</p>', unsafe_allow_html=True)
+                # Valor por quilômetro
+                st.markdown(f"""
+                <div class="result-box">
+                    <div class="result-value" style="color: #4CAF50;">R$ {resultado['valor_por_km']:.2f}/km</div>
+                    <div class="result-label">Valor por quilômetro</div>
+                </div>
+                """, unsafe_allow_html=True)
                 
-                st.markdown('</div>', unsafe_allow_html=True)
-                
-                # Detalhes em colunas
+                # Detalhes da cotação e do cálculo
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    st.subheader("Detalhes da Cotação")
-                    st.write(f"**Origem:** {origem}")
-                    st.write(f"**Destino:** {destino}")
-                    
-                    if modo_calculo == "Por módulos":
-                        st.write(f"**Módulos:** {num_modulos}")
-                    else:
-                        st.write(f"**Peso:** {peso_kg} kg")
-                    
-                    if resultado["distancia_km"]:
-                        st.write(f"**Distância:** {resultado['distancia_km']:.2f} km")
-                    else:
-                        st.write("**Distância:** Não calculada")
-                    
-                    st.write(f"**Data da Consulta:** {data_dt.strftime('%d/%m/%Y')}")
+                    st.markdown('<p class="medium-font">Detalhes da Cotação</p>', unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div class="detail-box">
+                        <p><strong>Origem:</strong> {origem}</p>
+                        <p><strong>Destino:</strong> {destino}</p>
+                        <p><strong>{'Módulos' if modo == 'modulos' else 'Peso'}:</strong> {quantidade} {'módulos' if modo == 'modulos' else 'kg'}</p>
+                        <p><strong>Distância:</strong> {resultado['distancia_km']} km</p>
+                        <p><strong>Data da Consulta:</strong> {data_prevista.strftime('%d/%m/%Y')}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
                 
                 with col2:
-                    st.subheader("Detalhes do Cálculo")
-                    st.write(f"**Valor médio base:** R$ {resultado['valor_medio_original']:.2f}")
-                    
-                    if modo_calculo == "Por módulos":
-                        st.write(f"**Ajuste por módulos:** R$ {resultado['ajuste_quantidade']:.2f}")
-                    else:
-                        st.write(f"**Ajuste por peso:** R$ {resultado['ajuste_quantidade']:.2f}")
-                    
-                    st.write(f"**Ajuste de inflação:** R$ {resultado['ajuste_inflacao']:.2f}")
-                    st.write(f"**Margem aplicada (10%):** R$ {resultado['margem_aplicada']:.2f}")
-                    st.write(f"**Fretes base:** {resultado['fretes_base']}")
+                    st.markdown('<p class="medium-font">Detalhes do Cálculo</p>', unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div class="detail-box">
+                        <p><strong>Valor médio base:</strong> R$ {resultado['valor_medio_original']:.2f}</p>
+                        <p><strong>Ajuste por {'módulos' if modo == 'modulos' else 'peso'}:</strong> R$ {resultado['ajuste_quantidade']:.2f}</p>
+                        <p><strong>Ajuste de inflação:</strong> R$ {resultado['ajuste_inflacao']:.2f}</p>
+                        <p><strong>Margem aplicada (10%):</strong> R$ {resultado['margem_aplicada']:.2f}</p>
+                        <p><strong>Fretes base:</strong> {resultado.get('fretes_base', 'N/A')}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
                 
-                # Informações adicionais
+                # Informações sobre o cálculo
                 with st.expander("Informações sobre o cálculo"):
-                    st.write("""
-                    O cálculo do frete é baseado em dados históricos, ajustados pelos seguintes fatores:
+                    st.markdown("""
+                    O cálculo do frete é baseado em dados históricos e considera:
                     
-                    1. **Busca de fretes similares**: Busca por origem, destino e quantidade similar
-                    2. **Ajuste por quantidade**: Aplica economia de escala (módulos ou peso)
-                    3. **Ajuste de inflação**: Considera a diferença temporal entre fretes históricos e a data atual
-                    4. **Valor por km**: Calculado com base nos fretes históricos similares
-                    5. **Margem adicional**: Aplica margem de 10% sobre o valor final
+                    1. **Valor médio base**: Média de fretes similares em distância e quantidade
+                    2. **Ajuste por módulos/peso**: Correção baseada na diferença entre a quantidade solicitada e a média histórica
+                    3. **Ajuste de inflação**: Correção monetária baseada na diferença temporal
+                    4. **Margem aplicada**: Adicional de 10% sobre o valor final
                     
-                    Para fretes curtos (menos de 10km), o sistema utiliza uma lógica especial baseada no histórico de fretes similares.
+                    Para fretes curtos (menos de 10km), é utilizada uma lógica específica com valores de referência.
                     """)
             else:
-                st.error(f"Erro no cálculo: {resultado['mensagem']}")
-    
-    # Rodapé
-    st.markdown('<div class="footer">Calculadora de Fretes © 2025</div>', unsafe_allow_html=True)
+                st.error(f"Erro ao calcular frete: {resultado['mensagem']}")
+        except Exception as e:
+            st.error(f"Erro ao processar o cálculo: {str(e)}")
 
-if __name__ == "__main__":
-    main()
+# Rodapé
+st.markdown("<div style='text-align: center; color: #888; padding-top: 30px;'>Calculadora de Fretes © 2025</div>", unsafe_allow_html=True)
