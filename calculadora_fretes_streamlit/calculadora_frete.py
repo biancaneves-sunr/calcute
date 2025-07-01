@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Calculadora de Fretes - Versão 5.0 (Recalibrada)
------------------------------------------------
+Calculadora de Fretes - Versão 5.0 (Recalibrada para GitHub)
+-----------------------------------------------------------
 Este script implementa uma calculadora de fretes baseada em dados históricos,
 com ajustes para garantir valores realistas e alinhados com o histórico.
+Versão adaptada para funcionar com o GitHub e Streamlit Cloud.
 """
 
 import pandas as pd
@@ -18,8 +19,13 @@ from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 import numpy as np
 from datetime import datetime, timedelta
+import io
+import requests
 
 # Configurações
+# URL do arquivo Excel no GitHub (formato raw)
+ARQUIVO_EXCEL_URL = "https://raw.githubusercontent.com/biancaneves-sunr/calcute/main/Banco%20de%20Dados%20-%20Logistica.xlsx"
+
 TAXA_INFLACAO_ANUAL = 0.045  # 4.5% ao ano (média IPCA)
 MARGEM_ADICIONAL = 0.10  # 10% de margem adicional
 
@@ -58,15 +64,55 @@ VALORES_REFERENCIA_PESO = {
 }
 
 class CalculadoraFrete:
-    def __init__(self, arquivo_excel=None):
-        """Inicializa a calculadora de fretes."""
-        self.dados = self._carregar_dados(arquivo_excel) if arquivo_excel else None
+    def __init__(self, arquivo_excel=None, usar_url=True):
+        """
+        Inicializa a calculadora de fretes.
+        
+        Args:
+            arquivo_excel: Caminho local do arquivo Excel ou None para usar URL
+            usar_url: Se True, ignora arquivo_excel e usa a URL do GitHub
+        """
+        self.dados = self._carregar_dados(arquivo_excel, usar_url)
         self.geolocator = Nominatim(user_agent="calculadora_frete")
         
-    def _carregar_dados(self, arquivo_excel):
-        """Carrega os dados do arquivo Excel."""
+    def _carregar_dados(self, arquivo_excel, usar_url=True):
+        """
+        Carrega os dados do arquivo Excel, seja de um caminho local ou da URL do GitHub.
+        
+        Args:
+            arquivo_excel: Caminho local do arquivo Excel
+            usar_url: Se True, ignora arquivo_excel e usa a URL do GitHub
+        
+        Returns:
+            DataFrame com os dados carregados ou None em caso de erro
+        """
         try:
-            df = pd.read_excel(arquivo_excel)
+            if usar_url:
+                # Tenta carregar da URL do GitHub
+                try:
+                    print(f"Tentando carregar dados da URL: {ARQUIVO_EXCEL_URL}")
+                    response = requests.get(ARQUIVO_EXCEL_URL)
+                    response.raise_for_status()  # Levanta exceção para códigos de erro HTTP
+                    df = pd.read_excel(io.BytesIO(response.content))
+                    print("Dados carregados com sucesso da URL do GitHub")
+                except Exception as e:
+                    print(f"Erro ao carregar dados da URL: {e}")
+                    # Tenta caminho local como fallback
+                    if arquivo_excel and os.path.exists(arquivo_excel):
+                        print(f"Tentando carregar do arquivo local: {arquivo_excel}")
+                        df = pd.read_excel(arquivo_excel)
+                        print("Dados carregados com sucesso do arquivo local")
+                    else:
+                        print("Arquivo local não encontrado. Usando valores de referência.")
+                        return None
+            elif arquivo_excel and os.path.exists(arquivo_excel):
+                # Carrega do caminho local se especificado e existir
+                print(f"Carregando dados do arquivo local: {arquivo_excel}")
+                df = pd.read_excel(arquivo_excel)
+                print("Dados carregados com sucesso do arquivo local")
+            else:
+                print("Arquivo não especificado ou não encontrado. Usando valores de referência.")
+                return None
             
             # Filtrar apenas registros com valor de frete válido (não nulo e maior que zero)
             df = df[(df['(R$) Frete'].notna()) & (df['(R$) Frete'] > 0)]
@@ -89,7 +135,7 @@ class CalculadoraFrete:
     def _obter_coordenadas(self, endereco):
         """Obtém as coordenadas geográficas a partir de um endereço."""
         try:
-            location = self.geolocator.geocode(endereco)
+            location = self.geolocator.geocode(endereco, timeout=10)  # Aumentado timeout para evitar erros
             if location:
                 return (location.latitude, location.longitude)
             return None
@@ -567,6 +613,7 @@ def main():
     parser.add_argument('--data', help='Data prevista (formato: DD/MM/AAAA)')
     parser.add_argument('--modo', choices=['modulos', 'peso'], default='modulos', help='Modo de cálculo')
     parser.add_argument('--excel', help='Caminho para o arquivo Excel')
+    parser.add_argument('--usar-url', action='store_true', help='Usar URL do GitHub para carregar dados')
     
     args = parser.parse_args()
     
@@ -580,7 +627,7 @@ def main():
             sys.exit(1)
     
     # Inicializar calculadora
-    calculadora = CalculadoraFrete(args.excel)
+    calculadora = CalculadoraFrete(args.excel, args.usar_url)
     
     # Calcular frete
     resultado = calculadora.calcular_frete(

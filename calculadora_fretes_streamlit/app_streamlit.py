@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Calculadora de Fretes - Interface Streamlit (Versão 5.0)
--------------------------------------------------------
-Interface web para a calculadora de fretes recalibrada.
+Calculadora de Fretes - Interface Streamlit (Versão 5.0 para GitHub)
+-------------------------------------------------------------------
+Interface web para a calculadora de fretes recalibrada, adaptada para Streamlit Cloud.
 """
 
 import streamlit as st
@@ -126,15 +126,10 @@ if calcular:
     if not origem or not destino:
         st.error("Por favor, preencha os campos de origem e destino.")
     else:
-        # Inicializar a calculadora
+        # Inicializar a calculadora (sempre usando a URL do GitHub)
         try:
-            # Verificar se o arquivo Excel existe
-            arquivo_excel = "/home/ubuntu/upload/BancodeDados-Logistica.xlsx"
-            if not os.path.exists(arquivo_excel):
-                st.warning("Arquivo de dados não encontrado. Usando valores de referência.")
-                calculadora = CalculadoraFrete()
-            else:
-                calculadora = CalculadoraFrete(arquivo_excel)
+            # Inicializar calculadora com URL do GitHub
+            calculadora = CalculadoraFrete(usar_url=True)
             
             # Converter modo de cálculo para o formato esperado pela calculadora
             modo = "modulos" if modo_calculo == "Por módulos" else "peso"
